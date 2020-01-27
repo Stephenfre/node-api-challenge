@@ -64,20 +64,7 @@ router.post('/', (req, res) => {
  delete records
 -----------------------------------------------------------------------------------------
 */
-router.delete(':id', (req, res) => {
-    Projects.remove(req.params.id)
-        .then(projects => {
-            if (projects > 0) {
-                res.status(200).json({ message: 'the project is gone' })
-            } else {
-                res.status(404).json({ message: 'the project can be found' })
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({ message: 'err remoivng the project' })
-        })
-})
+
 
 
 
