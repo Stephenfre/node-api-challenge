@@ -18,7 +18,7 @@ D - DELETE - delete
 
 /*
 -----------------------------------------------------------------------------------------
- retrieve info from the db
+ retrieve Projects from the db
 -----------------------------------------------------------------------------------------
 */
 
@@ -39,7 +39,13 @@ router.get('/:id', validateId, (req, res) => {
     res.status(200).json(req.project)
 })
 
-router.get('/:id/actions', (req, res) => {
+/*
+-----------------------------------------------------------------------------------------
+ Get Project actions
+-----------------------------------------------------------------------------------------
+*/
+
+router.get('/:project_id/actions', (req, res) => {
     const projectId = req.params.project_id;
     console.log(projectId)
     Projects.getProjectActions(projectId)
@@ -58,7 +64,7 @@ router.get('/:id/actions', (req, res) => {
 
 /*
 -----------------------------------------------------------------------------------------
- add a record to the db
+ add a project to the db
 -----------------------------------------------------------------------------------------
 */
 
@@ -77,9 +83,10 @@ router.post('/', validatePost, (req, res) => {
 })
 
 
+
 /*
 -----------------------------------------------------------------------------------------
- delete records
+ delete project
 -----------------------------------------------------------------------------------------
 */
 router.delete('/:id', validateId, (req, res) => {
@@ -94,7 +101,7 @@ router.delete('/:id', validateId, (req, res) => {
 
 /*
 -----------------------------------------------------------------------------------------
- modify a record in the db
+ modify a project in the db
 -----------------------------------------------------------------------------------------
 */
 router.put('/:id', validateId, validatePost, (req, res) => {
@@ -104,7 +111,6 @@ router.put('/:id', validateId, validatePost, (req, res) => {
         })
         .catch(err => res.status(500).json({ error: "The post information could not be modified.", err }))
 })
-
 
 
 
