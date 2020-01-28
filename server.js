@@ -10,14 +10,13 @@ const middleware = [express.json(), helmet(), morgan('dev'), logger];
 server.use(middleware);
 
 server.use('/api/projects', projectRouter)
-// server.use('/api/actions', actionRouter)
+server.use('/api/actions', actionRouter)
 
 
 
 server.get('/', (req, res, next) => {
     res.send(`
-    <h2>Lambda Hubs API</h2>
-    <p>Welcome Stephen to the Lambda Hubs API</p>
+    <p>Welcome Stephen to the Sprint1 API</p>
     `);
 });
 

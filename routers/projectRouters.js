@@ -35,8 +35,25 @@ router.get('/', (req, res) => {
         });
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validateId, (req, res) => {
     res.status(200).json(req.project)
+})
+
+router.get('/:id/actions', (req, res) => {
+    const projectId = req.params.project_id;
+    console.log(projectId)
+    Projects.getProjectActions(projectId)
+        .then(actions => {
+            if (actions) {
+                res.status(200).json(actions)
+            } else {
+                res.status(404).json({ message: 'Project id dont exist' })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ message: 'Project does not have any actions' })
+        })
 })
 
 /*
@@ -45,7 +62,8 @@ router.get('/:id', (req, res) => {
 -----------------------------------------------------------------------------------------
 */
 
-router.post('/', (req, res) => {
+router.post('/', validatePost, (req, res) => {
+    // console.log(req.body)
     Projects.insert(req.body)
         .then(projects => {
             res.status(201).json(projects)
@@ -64,7 +82,13 @@ router.post('/', (req, res) => {
  delete records
 -----------------------------------------------------------------------------------------
 */
-
+router.delete('/:id', validateId, (req, res) => {
+    Projects.remove(req.params.id)
+        .then(deleted => {
+            res.status(200).json({ message: 'project removed', deleted })
+        })
+        .catch(err => res.status(500).json({ error: "The post could not be removed", err }))
+})
 
 
 
@@ -72,7 +96,22 @@ router.post('/', (req, res) => {
 -----------------------------------------------------------------------------------------
  modify a record in the db
 -----------------------------------------------------------------------------------------
+*/
+router.put('/:id', validateId, validatePost, (req, res) => {
+    Projects.update(req.params.id)
+        .then(updating => {
+            res.status(200).json({ success: true, updating })
+        })
+        .catch(err => res.status(500).json({ error: "The post information could not be modified.", err }))
+})
 
+
+
+
+/*
+-----------------------------------------------------------------------------------------
+ Custom Middleware
+-----------------------------------------------------------------------------------------
 */
 
 function validateId(req, res, next) {
@@ -90,6 +129,14 @@ function validateId(req, res, next) {
             console.log(err);
             res.status(500).json({ message: 'err', err })
         })
+}
+
+function validatePost(req, res, next) {
+    if (req.body.name && req.body.description) {
+        next()
+    } else {
+        res.status(400).json({ errorMessage: "Please provide name and description for the post." })
+    }
 }
 
 module.exports = router
