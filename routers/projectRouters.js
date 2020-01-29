@@ -35,7 +35,7 @@ router.get('/', (req, res) => {
         });
 })
 
-router.get('/:id', validateId, (req, res) => {
+router.get('/projects/:id', validateId, (req, res) => {
     res.status(200).json(req.project)
 })
 
