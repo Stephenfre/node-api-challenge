@@ -18,7 +18,7 @@ D - DELETE - delete
 
 /*
 -----------------------------------------------------------------------------------------
- retrieve info from the db
+ retrieve Projects from the db
 -----------------------------------------------------------------------------------------
 */
 
@@ -35,17 +35,41 @@ router.get('/', (req, res) => {
         });
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validateId, (req, res) => {
     res.status(200).json(req.project)
 })
 
 /*
 -----------------------------------------------------------------------------------------
- add a record to the db
+ Get Project actions
 -----------------------------------------------------------------------------------------
 */
 
-router.post('/', (req, res) => {
+router.get('/:project_id/actions', (req, res) => {
+    const projectId = req.params.project_id;
+    console.log(projectId)
+    Projects.getProjectActions(projectId)
+        .then(actions => {
+            if (actions) {
+                res.status(200).json(actions)
+            } else {
+                res.status(404).json({ message: 'Project id dont exist' })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ message: 'Project does not have any actions' })
+        })
+})
+
+/*
+-----------------------------------------------------------------------------------------
+ add a project to the db
+-----------------------------------------------------------------------------------------
+*/
+
+router.post('/', validatePost, (req, res) => {
+    // console.log(req.body)
     Projects.insert(req.body)
         .then(projects => {
             res.status(201).json(projects)
@@ -59,33 +83,41 @@ router.post('/', (req, res) => {
 })
 
 
+
 /*
 -----------------------------------------------------------------------------------------
- delete records
+ delete project
 -----------------------------------------------------------------------------------------
 */
-router.delete(':id', (req, res) => {
+router.delete('/:id', validateId, (req, res) => {
     Projects.remove(req.params.id)
-        .then(projects => {
-            if (projects > 0) {
-                res.status(200).json({ message: 'the project is gone' })
-            } else {
-                res.status(404).json({ message: 'the project can be found' })
-            }
+        .then(deleted => {
+            res.status(200).json({ message: 'project removed', deleted })
         })
-        .catch(err => {
-            console.log(err)
-            res.status(500).json({ message: 'err remoivng the project' })
-        })
+        .catch(err => res.status(500).json({ error: "The post could not be removed", err }))
 })
 
 
 
 /*
 -----------------------------------------------------------------------------------------
- modify a record in the db
+ modify a project in the db
 -----------------------------------------------------------------------------------------
+*/
+router.put('/:id', validateId, validatePost, (req, res) => {
+    Projects.update(req.params.id)
+        .then(updating => {
+            res.status(200).json({ success: true, updating })
+        })
+        .catch(err => res.status(500).json({ error: "The post information could not be modified.", err }))
+})
 
+
+
+/*
+-----------------------------------------------------------------------------------------
+ Custom Middleware
+-----------------------------------------------------------------------------------------
 */
 
 function validateId(req, res, next) {
@@ -103,6 +135,14 @@ function validateId(req, res, next) {
             console.log(err);
             res.status(500).json({ message: 'err', err })
         })
+}
+
+function validatePost(req, res, next) {
+    if (req.body.name && req.body.description) {
+        next()
+    } else {
+        res.status(400).json({ errorMessage: "Please provide name and description for the post." })
+    }
 }
 
 module.exports = router
